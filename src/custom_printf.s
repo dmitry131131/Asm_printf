@@ -1,4 +1,3 @@
-global _Z3gayv
 global _Z13custom_printfPKcz
 
 section .text
@@ -8,57 +7,58 @@ extern calloc
 extern _Z13test_functionv
 
 %macro push_arguments 0
-    push rdi
-    push rsi
-    push rdx
-    push rcx
-    push r8
     push r9
+    push r8
+    push rcx
+    push rdx
+    push rsi
+    push rdi
 %endmacro
 
 %macro pop_arguments 0
-    pop r9
-    pop r8
-    pop rcx
-    pop rdx
-    pop rsi
     pop rdi
+    pop rsi
+    pop rdx
+    pop rcx
+    pop r8
+    pop r9
 %endmacro
 
-_Z3gayv:    sub rsp, 8
-            mov rdi, Msg
-            call printf
-            call _Z13test_functionv
-            add rsp, 8
-
-            ret
 ; TODO Сделать приём аргументов из стека
 ; custom printf function
 _Z13custom_printfPKcz:
-            push rbp        ; Save rbp
+            push rbp                ; Save rbp
             mov  rbp, rsp
-            push_arguments  ; save all parameters 
 
-            ;mov [rbp - 8],  rdi
-            ;mov [rbp - 16], rsi
-            ;mov [rbp - 24], rdx
-            ;mov [rbp - 32], rcx
-            ;mov [rbp - 40], r8
-            ;mov [rbp - 48], r9
+            mov [Stack_argument_adress], rsp      ; save stack arguments adress
+            push_arguments          ; save all parameters 
 
-            mov rsi, [rbp - 8]
-            lea rdi, [rbp - 16]
+            mov rsi, [rsp]
+            lea rdi, [rsp + 8]
             call compile_str
             mov rsi, rax
 
-            mov rax, 0x01      ; write64 (rdi, rsi, rdx) ... r10, r8, r9
-            mov rdi, 1         ; stdout
-            call str_len       ; strlen (Msg)
+            mov rax, 0x01           ; write64 (rdi, rsi, rdx) ... r10, r8, r9
+            mov rdi, 1              ; stdout
+            call str_len            ; strlen (Msg)
             syscall
 
-            pop_arguments   ; repair all parameters
-            call printf
-            call _Z13test_functionv
+            pop_arguments           ; repair all parameters
+
+            mov rax, [rsp]          ; save old RBP value
+            mov [Old_RBP], rax
+            add rsp, 8
+
+            mov rax, [rsp]          ; save return adress
+            mov [Return_adress], rax 
+            add rsp, 8
+
+            call printf             ; call default printf
+
+            push qword [Return_adress]  ; return old Return adress and rbp in stack
+            push qword [Old_RBP]
+
+            call _Z13test_functionv ; call End of programm function
 
             pop rbp
             ret
@@ -132,7 +132,7 @@ compile_flag:
             mov bl, [rdi]
             mov [rax], bl
             inc rax
-            sub rdi, 8
+            add rdi, 8
 .not_c:
 
             cmp byte [rsi + 1], '%'
@@ -161,10 +161,18 @@ compile_flag:
 .end_loop:
 
             pop r8                    ; repair rcx
-            sub rdi, 8
+            add rdi, 8
 .not_s:
 
             pop rbx
+
+            cmp rdi, [Stack_argument_adress]
+            jne .skip_rdi_change
+
+            add rdi, 16
+
+.skip_rdi_change:
+
             ret
 
 ; Count symbols in string
@@ -188,5 +196,9 @@ str_len:
             
 section     .data
             
+Stack_argument_adress: dq 0
+Return_adress: dq 0
+Old_RBP: dq 0
+
 Msg:        db "Hui", 0x0a
 MsgLen      equ $ - Msg
