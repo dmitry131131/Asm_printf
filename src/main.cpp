@@ -4,7 +4,7 @@ extern void custom_printf(const char* format, ...);
 
 int main()
 {
-    custom_printf("aaa%daaa\n", 12);
+    custom_printf("%%a%ca%ca%c   %s:\n", 'p', 'e', 'x', "12345");
     return 0;
 }
 
