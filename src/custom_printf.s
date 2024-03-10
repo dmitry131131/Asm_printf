@@ -5,6 +5,7 @@ section .text
 extern printf
 extern calloc
 extern _Z13test_functionv
+extern write_hex_value
 
 %macro push_arguments 0
     push r9
@@ -76,7 +77,7 @@ compile_str:
             push rdi
 
             call str_len            ; count symbols of start string
-            shr rdx, 3              ; rdx * 8
+            shl rdx, 3              ; rdx * 8
 
             push rsi                ; save rsi
             mov rdi, rdx            ; count of symbols of final string 
@@ -126,7 +127,7 @@ compile_str:
 compile_flag:
             push rbx
 
-            cmp byte [rsi + 1], 'c'
+            cmp byte [rsi + 1], 'c' ; check %c
             jne .not_c
 
             mov bl, [rdi]
@@ -135,14 +136,23 @@ compile_flag:
             add rdi, 8
 .not_c:
 
-            cmp byte [rsi + 1], '%'
+            cmp byte [rsi + 1], '%'     ; check %%
             jne .not_percent
 
             mov [rax], byte '%'
             inc rax
 .not_percent:
 
-            cmp byte [rsi + 1], 's'
+            cmp byte [rsi + 1], 'x'
+            jne .not_x
+
+            call write_hex_value
+
+            add rdi, 8
+
+.not_x:
+
+            cmp byte [rsi + 1], 's'     ; check %s
             jne .not_s
 
             push r8

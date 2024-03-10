@@ -9,7 +9,7 @@ Include = -Iinclude
 
 Libs = -static -lc
 
-Asm_files = custom_printf.s
+Asm_files = to_hex.s custom_printf.s 
 Cpp_files = main.cpp
 
 Cpp_src = $(addprefix $(SourcePrefix), $(Cpp_files))
