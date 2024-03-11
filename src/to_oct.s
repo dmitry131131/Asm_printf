@@ -1,12 +1,5 @@
 global write_oct_value
-
-; Function converts number to OCT
-; Entry             BL - Number (0-7)
-; Return            BL - Number ('0'-'7')
-; Destroy           BL
-number_to_oct_digit:  
-            add bl, '0'              ; (0x30)
-            ret
+extern number_to_digit
 
 ; Function write qword to oct
 ; Entry     RAX - current position in output buffer
@@ -16,7 +9,7 @@ write_oct_value:
             push rcx            ; save rcx and rbx
             push rbx
 
-            mov rcx, 11         ; rcx = 10
+            mov rcx, 11         ; rcx = 11
 
 .skip_zero_next:                ; skip zero loop
             dec rcx
@@ -47,7 +40,7 @@ write_oct_value:
             shr rbx, cl
             and rbx, 0x3
 
-            call number_to_oct_digit    ; write current byte
+            call number_to_digit    ; write current byte
             mov [rax], rbx
             inc rax
 ;-----------------------------------------
@@ -59,7 +52,7 @@ write_oct_value:
             shr rbx, cl
             and rbx, 0x7
 
-            call number_to_oct_digit    ; write current byte
+            call number_to_digit    ; write current byte
             mov [rax], rbx
             inc rax
 

@@ -1,10 +1,11 @@
 global write_bin_value
+global number_to_digit
 
 ; Function converts number to BIN
-; Entry             BL - Number (0-1)
-; Return            BL - Number ('0'-'1')
-; Destroy           BL
-number_to_bin_digit:  
+; Entry         BL - Number (0-1)
+; Return        BL - Number ('0'-'1')
+; Destroy       BL
+number_to_digit:  
             add bl, '0'              ; (0x30)
             ret
 
@@ -40,7 +41,7 @@ write_bin_value:
             shr rbx, cl                 ; mov current number to bl
             and rbx, 0x1
 
-            call number_to_bin_digit    ; write current byte
+            call number_to_digit    ; write current byte
             mov [rax], rbx
             inc rax
 

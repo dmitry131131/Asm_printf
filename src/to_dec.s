@@ -1,12 +1,5 @@
 global write_dec_value
-
-; Function converts number to DEC
-; Entry         DL - Number (0-9)
-; Return        DL - Number ('0'-'9')
-; Destroy       DL
-number_to_dec_digit:  
-            add dl, '0'                 ; (0x30)
-            ret
+extern number_to_digit
 
 ; Function write qword to dec
 ; Entry     RAX - current position in output buffer
@@ -46,8 +39,9 @@ write_dec_value:
             mov ebx, 10                 ; mov 10 in rbx
             div ebx                     ; rax / 10 -> rax(rdx)
    
-            call number_to_dec_digit    ; convert digit to symbol
-            push rdx                    ; save symbol in stack
+            mov rbx, rdx
+            call number_to_digit        ; convert digit to symbol
+            push rbx                    ; save symbol in stack
 
             mov rbx, rax                ; 
             inc rcx                     ; rcx++
