@@ -13,7 +13,7 @@ number_to_dec_digit:
 ;           RDI - current argument adress 
 ; Destroy   RAX - add count of writen symbols
 write_dec_value:
-            push rcx                    ; save rcx and rbx
+            push rcx                    ; save rcx, rbx, rdx and r8
             push rbx
             push rdx
             push r8
@@ -23,18 +23,28 @@ write_dec_value:
             mov r8, rax                 ; save rax in r8
 
             cmp rbx, 0                  ; if number is 0
-            jne .next
-            mov byte [rax], 48          ; write '0'
+            jne .check_sign
+            mov byte [rax], '0'         ; write '0'
             inc rax
             jmp .end_func
+
+.check_sign:
+            test ebx, ebx
+            jns .not_minus
+
+            mov byte [rax], '-'
+            inc r8
+            neg ebx
+
+.not_minus:
 
 .next:      cmp rbx, 0
             je .end_loop
 
             mov rax, rbx                ; mov number to rax
-            cqo                         ; rax -> rdx:rax
-            mov rbx, 10                 ; mov 10 in rbx
-            div rbx                     ; rax / 10 -> rax(rdx)
+            cdq                         ; rax -> rdx:rax
+            mov ebx, 10                 ; mov 10 in rbx
+            div ebx                     ; rax / 10 -> rax(rdx)
    
             call number_to_dec_digit    ; convert digit to symbol
             push rdx                    ; save symbol in stack

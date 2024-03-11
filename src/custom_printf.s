@@ -11,21 +11,21 @@ extern write_bin_value
 extern write_dec_value
 
 %macro push_arguments 0
-    push r9
-    push r8
-    push rcx
-    push rdx
-    push rsi
-    push rdi
+            push r9
+            push r8
+            push rcx
+            push rdx
+            push rsi
+            push rdi
 %endmacro
 
 %macro pop_arguments 0
-    pop rdi
-    pop rsi
-    pop rdx
-    pop rcx
-    pop r8
-    pop r9
+            pop rdi
+            pop rsi
+            pop rdx
+            pop rcx
+            pop r8
+            pop r9
 %endmacro
 
 ; custom printf function
@@ -174,12 +174,21 @@ compile_flag:
             add rdi, 8
 
 .not_b:
+            cmp byte [rsi + 1], 'u'
+            jne .not_u
+
+            ;call write_dec_value
+
+            add rdi, 8
+.not_u:
+
             cmp byte [rsi + 1], 'd'
             jne .not_d
 
             call write_dec_value
 
             add rdi, 8
+
 .not_d:
 
             cmp byte [rsi + 1], 's'     ; check %s
