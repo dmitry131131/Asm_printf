@@ -8,6 +8,7 @@ extern _Z13test_functionv
 extern write_hex_value
 extern write_oct_value
 extern write_bin_value
+extern write_dec_value
 
 %macro push_arguments 0
     push r9
@@ -38,6 +39,7 @@ _Z13custom_printfPKcz:
             mov rsi, [rsp]
             lea rdi, [rsp + 8]
             call compile_str
+            mov [Start_of_final_string], rax
             mov rsi, rax
 
             mov rax, 0x01           ; write64 (rdi, rsi, rdx) ... r10, r8, r9
@@ -63,6 +65,9 @@ _Z13custom_printfPKcz:
             call _Z13test_functionv ; call End of programm function
 
             pop rbp
+
+            mov rax, [End_of_final_string]          ; put value to return register
+            sub rax, [Start_of_final_string]
             ret
 
 ; Function convert format string to output string
@@ -78,7 +83,7 @@ compile_str:
             push rdi
 
             call str_len            ; count symbols of start string
-            shl rdx, 3              ; rdx * 8
+            shl rdx, 5              ; rdx * 32
 
             push rsi                ; save rsi
             mov rdi, rdx            ; count of symbols of final string 
@@ -111,6 +116,7 @@ compile_str:
 
             mov byte [rax], 0       ; add \0 in the end of string
 
+            mov [End_of_final_string], rax  ; save end of final string adress
             pop rax                 ; set ax on start of final string
 
             pop rbx                 ; Repair registers
@@ -171,7 +177,7 @@ compile_flag:
             cmp byte [rsi + 1], 'd'
             jne .not_d
 
-            ; TODO Написать функцию преобразования в десятичное число
+            call write_dec_value
 
             add rdi, 8
 .not_d:
@@ -233,6 +239,8 @@ section     .data
 Stack_argument_adress: dq 0
 Return_adress: dq 0
 Old_RBP: dq 0
+Start_of_final_string: dq 0
+End_of_final_string: dq 0
 
 Msg:        db "Hui", 0x0a
 MsgLen      equ $ - Msg

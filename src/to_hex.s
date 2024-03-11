@@ -1,5 +1,5 @@
 global write_hex_value
-
+; BUG Исправить вывод hex
 ; Function converts number to HEX
 ; Entry             BL - Number (0-15)
 ; Return            BL - Number ('0'-'F')
