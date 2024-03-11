@@ -6,6 +6,8 @@ extern printf
 extern calloc
 extern _Z13test_functionv
 extern write_hex_value
+extern write_oct_value
+extern write_bin_value
 
 %macro push_arguments 0
     push r9
@@ -25,7 +27,6 @@ extern write_hex_value
     pop r9
 %endmacro
 
-; TODO Сделать приём аргументов из стека
 ; custom printf function
 _Z13custom_printfPKcz:
             push rbp                ; Save rbp
@@ -151,6 +152,29 @@ compile_flag:
             add rdi, 8
 
 .not_x:
+            cmp byte [rsi + 1], 'o'
+            jne .not_o
+
+            call write_oct_value
+
+            add rdi, 8
+
+.not_o:
+            cmp byte [rsi + 1], 'b'
+            jne .not_b
+
+            call write_bin_value
+
+            add rdi, 8
+
+.not_b:
+            cmp byte [rsi + 1], 'd'
+            jne .not_d
+
+            ; TODO Написать функцию преобразования в десятичное число
+
+            add rdi, 8
+.not_d:
 
             cmp byte [rsi + 1], 's'     ; check %s
             jne .not_s
