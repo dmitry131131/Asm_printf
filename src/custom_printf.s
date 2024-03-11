@@ -203,7 +203,6 @@ compile_flag:
             pop r8                    ; repair rcx
             add rdi, 8
 .not_s:
-
             pop rbx
 
             cmp rdi, [Stack_argument_adress]
